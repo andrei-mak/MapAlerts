@@ -1,9 +1,16 @@
 package com.maknc.mapalerts;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -11,7 +18,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener {
 
     private static final LatLng PERTH = new LatLng(-31.952854, 115.857342);
     private static final LatLng SYDNEY = new LatLng(-33.87365, 151.20689);
@@ -54,7 +61,9 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
 
         mSydney = mMap.addMarker(new MarkerOptions()
                 .position(SYDNEY)
-                .title("Sydney"));
+                .title("Sydney")
+                .snippet("Additional info"));
+
         mSydney.setTag(0);
 
         mBrisbane = mMap.addMarker(new MarkerOptions()
@@ -64,6 +73,48 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
 
         // Set a listener for marker click.
         mMap.setOnMarkerClickListener(this);
+
+        // Set a listeners for click and long click
+        mMap.setOnMapClickListener(this);
+        mMap.setOnMapLongClickListener(this);
+
+        // Find current location:
+        // Enable MyLocation Layer of Google Map
+        mMap.setMyLocationEnabled(true);
+
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        String locationProvider = LocationManager.NETWORK_PROVIDER;
+        // Or use LocationManager.GPS_PROVIDER
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+
+        // Get latitude of the current location
+        double latitude = lastKnownLocation.getLatitude();
+
+        // Get longitude of the current location
+        double longitude = lastKnownLocation.getLongitude();
+
+        // Create a LatLng object for the current location
+        LatLng latLng = new LatLng(latitude, longitude);
+
+        // Show the current location in Google Map
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+        // Zoom in the Google Map
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+        googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
     }
 
     /** Called when the user clicks a marker. */
@@ -87,5 +138,20 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
         return false;
+    }
+
+
+    @Override
+    public void onMapClick(LatLng point) {
+        Toast.makeText(this,
+                " has been clicked " + point + " .",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMapLongClick(LatLng point) {
+        Toast.makeText(this,
+                " has been clicked " + point + " .",
+                Toast.LENGTH_SHORT).show();
     }
 }
