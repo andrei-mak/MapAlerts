@@ -8,13 +8,40 @@
     map:mapType="normal"
     tools:context="com.maknc.mapalerts.MapsActivity">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="Demo Button"
-        android:padding="10dp"
-        android:layout_marginTop="20dp"
-        android:paddingRight="10dp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
+    <LinearLayout
+        android:id="@+id/editpanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingTop="@dimen/panel_padding_medium"
+        android:background="@color/colorElementBg"
+        android:visibility="invisible">
+
+        <EditText
+            android:id="@+id/edittext"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="4"
+            android:ems="10"
+            android:text="@string/edittext_placeholder"
+            android:inputType="text"
+            android:visibility="invisible"/>
+
+    </LinearLayout>
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:text="Demo Button"
+            android:padding="10dp"
+            android:layout_marginTop="50dp"
+            android:paddingRight="10dp" />
+
+    </RelativeLayout>
 </fragment>
