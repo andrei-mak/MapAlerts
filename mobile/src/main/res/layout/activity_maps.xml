@@ -1,3 +1,7 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,41 +11,35 @@
     android:layout_height="match_parent"
     map:mapType="normal"
     tools:context="com.maknc.mapalerts.MapsActivity">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+</fragment>
 
     <LinearLayout
         android:id="@+id/editpanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:paddingTop="@dimen/panel_padding_medium"
         android:background="@color/colorElementBg"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
         android:visibility="invisible">
 
         <EditText
             android:id="@+id/edittext"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="4"
-            android:ems="10"
-            android:text="@string/edittext_placeholder"
+            android:layout_weight="1"
+            android:hint="@string/edittext_placeholder"
             android:inputType="text"
+            android:imeOptions="actionSend"
             android:visibility="invisible"/>
-
-    </LinearLayout>
-
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
-            android:text="Demo Button"
+            android:text="Save"
             android:padding="10dp"
-            android:layout_marginTop="50dp"
-            android:paddingRight="10dp" />
+            android:paddingRight="5dp"
+            android:visibility="invisible"/>
 
-    </RelativeLayout>
-</fragment>
+    </LinearLayout>
+</RelativeLayout>

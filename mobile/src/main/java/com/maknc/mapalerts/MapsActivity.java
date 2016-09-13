@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -38,6 +39,10 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
     private GoogleMap mMap;
     private EditText editText;
     private LinearLayout editPanelLayout;
+    private LatLng clickedPoint;
+
+    private GoogleApiClient mGoogleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,40 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
 
         editText = (EditText) findViewById(R.id.edittext);
         editPanelLayout = (LinearLayout)findViewById(R.id.editpanel);
+
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((actionId == EditorInfo.IME_ACTION_SEND) || (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+
+                    mMap.addMarker(new MarkerOptions()
+                            .position(clickedPoint)
+                            .title("user: " + editText.getText()));
+
+                    // Hide keyboard
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+
+                    // Reset edittext props
+                    editText.getText().clear();
+                    editText.setVisibility(View.INVISIBLE);
+                    editPanelLayout.setVisibility(View.INVISIBLE);
+
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -155,10 +194,14 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
 
 
     @Override
-    public void onMapClick(final LatLng point) {
-        Toast.makeText(this,
-                " has been clicked " + point + " .",
-                Toast.LENGTH_SHORT).show();
+    public void onMapClick(LatLng point) {
+//        Toast.makeText(this,
+//                " has been clicked " + point + " .",
+//                Toast.LENGTH_SHORT).show();        Toast.makeText(this,
+//                " has been clicked " + point + " .",
+//                Toast.LENGTH_SHORT).show();
+
+        clickedPoint = point;
 
         if(editText.getVisibility() == View.VISIBLE) {
             // User click outside edittext - so cancel enter and
@@ -170,45 +213,22 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
             imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 
             // Reset props
-            editText.setText(R.string.edittext_placeholder);
+            editText.getText().clear();
             editText.setVisibility(View.INVISIBLE);
             editPanelLayout.setVisibility(View.INVISIBLE);
 
         } else {
+            // Open edit panel and add marker after user enter
 
             editPanelLayout.setVisibility(View.VISIBLE);
             editText.setVisibility(View.VISIBLE);
             editText.requestFocus();
 
             // Show keyboard
+            // TODO: Don't forget to add android:windowSoftInputMode="stateVisible|adjustResize"
+            // to manifest for current activity
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-
-            editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    if ((actionId == EditorInfo.IME_ACTION_DONE) || (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-
-                        mMap.addMarker(new MarkerOptions()
-                                .position(point)
-                                .title("user: " + editText.getText()));
-
-                        // Hide keyboard
-                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
-
-                        // Reset edittext props
-                        editText.setText(R.string.edittext_placeholder);
-                        editText.setVisibility(View.INVISIBLE);
-                        editPanelLayout.setVisibility(View.INVISIBLE);
-
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            });
-
         }
     }
 
@@ -217,5 +237,15 @@ public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMarke
         Toast.makeText(this,
                 " has been clicked " + point + " .",
                 Toast.LENGTH_SHORT).show();
+    }
+
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 }
